@@ -97,7 +97,7 @@ export const returnBook = async (req, res) => {
   }
 };
 
-async function updateMemberStatus(memberId) {
+export async function updateMemberStatus(memberId) {
   const member = await Members.findByPk(memberId);
   if (member && member.status !== "Penalized") {
     member.status = "Penalized";
@@ -109,7 +109,7 @@ async function updateMemberStatus(memberId) {
   }
 }
 
-async function incrementBookStock(bookId) {
+export async function incrementBookStock(bookId) {
   const book = await Books.findByPk(bookId);
   if (book) {
     book.stock += 1;
