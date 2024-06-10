@@ -1,21 +1,26 @@
 import swaggerJSDoc from "swagger-jsdoc";
 
-const swaggerOptions = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "BACKEND TEST CASE",
-      version: "1.0.0",
-      description: "Jawaban backend test case dari EIGEN",
-    },
-    servers: [
-      {
-        url: "http://localhost:5000",
-        description: "Development server",
-      },
-    ],
+const swaggerDefinition = {
+  openapi: "3.0.0",
+  info: {
+    title: "Backend Test Case",
+    version: "1.0.0",
+    description: "Answer Backend Test Case EIGEN",
   },
-  apis: ["../routes/*.js"], // path ke file API Anda
+  servers: [
+    {
+      url: "http://localhost:5000",
+      description: "Development server",
+    },
+  ],
 };
 
-export const swaggerDocs = swaggerJSDoc(swaggerOptions);
+const options = {
+  swaggerDefinition,
+  // Paths to files containing OpenAPI definitions
+  apis: ["./routes/*.js"],
+};
+
+const swaggerSpec = swaggerJSDoc(options);
+
+export default swaggerSpec;

@@ -4,17 +4,14 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import db from "./config/Database.js";
 import router from "./routes/index.js";
-import Users from "./models/UserModel.js";
 import Borrows from "./models/BorrowModel.js";
 import Books from "./models/BookModel.js";
 import Members from "./models/MemberModel.js";
-import { swaggerDocs } from "./config/Swagger.js";
+import swaggerSpec from "./config/Swagger.js";
 import swaggerUi from "swagger-ui-express";
 dotenv.config();
 const app = express();
-
-app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-
+app.use("/api", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 try {
   await db.authenticate();
   console.log("Database Connected...");
@@ -32,7 +29,6 @@ Borrows.belongsTo(Members, { foreignKey: "id_user" });
 Books.hasMany(Borrows, { foreignKey: "id_book" });
 Borrows.belongsTo(Books, { foreignKey: "id_book" });
 
-Users.sync().then(() => console.log("User table created"));
 Borrows.sync().then(() => console.log("Borrow table created"));
 Books.sync().then(() => console.log("Book table created"));
 Members.sync().then(() => console.log("Member table created"));
