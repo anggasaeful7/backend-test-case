@@ -11,15 +11,18 @@ import swaggerSpec from "./config/Swagger.js";
 import swaggerUi from "swagger-ui-express";
 dotenv.config();
 const app = express();
+export default app;
 app.use("/api", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-try {
-  await db.authenticate();
-  console.log("Database Connected...");
-} catch (error) {
-  console.error(error);
-}
 
-app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+(async () => {
+  try {
+    await db.authenticate();
+    console.log("Database Connected...");
+  } catch (error) {
+    console.error(error);
+  }
+})();
+app.use(cors({ credentials: true, origin: "" }));
 app.use(cookieParser());
 app.use(express.json());
 app.use(router);
@@ -29,8 +32,8 @@ Borrows.belongsTo(Members, { foreignKey: "id_user" });
 Books.hasMany(Borrows, { foreignKey: "id_book" });
 Borrows.belongsTo(Books, { foreignKey: "id_book" });
 
-Borrows.sync().then(() => console.log("Borrow table created"));
-Books.sync().then(() => console.log("Book table created"));
-Members.sync().then(() => console.log("Member table created"));
+// Borrows.sync().then(() => console.log("Borrow table created"));
+// Books.sync().then(() => console.log("Book table created"));
+// Members.sync().then(() => console.log("Member table created"));
 
 app.listen(5000, () => console.log("Server running at port 5000"));
