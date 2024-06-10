@@ -67,29 +67,28 @@ export const borrowBook = async (req, res) => {
 
 export const returnBook = async (req, res) => {
   const { id } = req.body;
+
   try {
-    // Cari entri peminjaman buku berdasarkan ID
+    // Retrieve the borrow record by ID
     const borrow = await Borrows.findByPk(id);
     if (!borrow) {
       return res.status(404).json({ message: "Borrow record not found" });
     }
 
-    const currentDate = new Date();
-    const penalizedDays = 3; // Jumlah hari penalized
-
+    // Check if the book is returned after its due date
+    const date = new Date();
+    const currentDate = date.toISOString();
+    console.log(borrow.expire, currentDate);
     if (borrow.expire < currentDate) {
-      // Jika tanggal kembali melebihi tanggal kadaluwarsa, perbarui status member
-      const member = await Members.findByPk(borrow.id_user);
-      if (member) {
-        member.status = "Penalized";
-        member.penalized_at = new Date(
-          currentDate.getTime() + penalizedDays * 24 * 60 * 60 * 1000
-        ); // Tambah 3 hari dari hari ini
-        await member.save();
-      }
+      // Update member status if the book is returned late
+      await updateMemberStatus(borrow.id_user);
+      console.log("Member Terlambat");
     }
 
-    // Hapus entri peminjaman
+    // Update book stock
+    await incrementBookStock(borrow.id_book);
+
+    // Delete the borrow record
     await Borrows.destroy({ where: { id } });
     res.json({ message: "Returned successfully" });
   } catch (error) {
@@ -97,6 +96,26 @@ export const returnBook = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+async function updateMemberStatus(memberId) {
+  const member = await Members.findByPk(memberId);
+  if (member && member.status !== "Penalized") {
+    member.status = "Penalized";
+    const penalizedDays = 3;
+    member.penalized_at = new Date(
+      new Date().getTime() + penalizedDays * 24 * 60 * 60 * 1000
+    );
+    await member.save();
+  }
+}
+
+async function incrementBookStock(bookId) {
+  const book = await Books.findByPk(bookId);
+  if (book) {
+    book.stock += 1;
+    await book.save();
+  }
+}
 
 export const getBorrowed = async (req, res) => {
   try {

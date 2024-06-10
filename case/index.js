@@ -8,8 +8,12 @@ import Users from "./models/UserModel.js";
 import Borrows from "./models/BorrowModel.js";
 import Books from "./models/BookModel.js";
 import Members from "./models/MemberModel.js";
+import { swaggerDocs } from "./config/Swagger.js";
+import swaggerUi from "swagger-ui-express";
 dotenv.config();
 const app = express();
+
+app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 try {
   await db.authenticate();
