@@ -15,9 +15,17 @@ export const borrowBook = async (req, res) => {
     }
 
     if (member.status === "Penalized") {
-      return res
-        .status(403)
-        .json({ message: "Member is currently being penalized" });
+      // Cek tanggal penalized_at
+      const penalizedDate = new Date(member.penalized_at);
+      if (penalizedDate > date) {
+        return res
+          .status(403)
+          .json({ message: "Member is currently being penalized" });
+      } else {
+        // Jika tanggal penalized_at sudah lewat, ubah status menjadi aktif
+        member.status = "Active";
+        await member.save();
+      }
     }
 
     // Cek jumlah buku yang sedang dipinjam oleh user
